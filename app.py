@@ -10,6 +10,8 @@ from keras.models import Sequential
 from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense
 from keras.models import load_model
 from keras.callbacks import EarlyStopping
+import os
+os.environ['PYOPENGL_PLATFORM'] = 'egl'
 import cv2
 
 
