@@ -1,5 +1,5 @@
 keras
 numpy
-opencv_python-headless
+opencv_python
 streamlit
 tensorflow
