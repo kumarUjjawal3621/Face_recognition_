@@ -1,6 +1,6 @@
 import streamlit as st
 from PIL import Image
-import io
+# import io
 import os
 import base64
 import cv2
@@ -16,21 +16,28 @@ def take_frame():
     st.title("Training Page")
     st.write("Start your face training")
 
-    name = st.text_input("Employee Name")
+    name = st.text_input("Person Name")
 
     if st.button("Start Recording"):
         frames=[]
+        # Open the webcam
         cap = cv2.VideoCapture(0)
         st.write("Recording started...")
+        
+        # Create a placeholder for the video stream
         video_placeholder = st.empty()
+
         count=0
-        while count<200 :
+        while count<200:
             ret, frame = cap.read()
             # Convert BGR to RGB
             frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            frames.append(frame_rgb)
             # Display the frame in Streamlit as a live video stream
             video_placeholder.image(frame_rgb)
+            #appending only 1 out of 5 frames to avoid similarity in images
+            if count%5==0:
+                frames.append(frame_rgb)
+
             count+=1
         cap.release()
         st.write("Recording finished!")
@@ -233,10 +240,10 @@ if page == "Training":
     pass
      
 if page=="Database":
-  st.write("database is heree")
+  st.write("Database is here")
   show_image()
   
 if page=="Testing":
-  st.write("Testing is heree")
+  st.write("Face recognition here!")
   test_page()
   
