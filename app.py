@@ -21,7 +21,7 @@ def take_frame():
     if st.button("Start Recording"):
         frames=[]
         # Open the webcam
-        cap = cv2.VideoCapture(0)
+        cap = cv2.VideoCapture(1)
         st.write("Recording started...")
         
         # Create a placeholder for the video stream
