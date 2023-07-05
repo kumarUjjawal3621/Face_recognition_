@@ -30,7 +30,7 @@ def take_frame():
         count=0
         while count<200 :
             ret, frame = cap.read()
-            print(frame)
+            st.write(frame)
             frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             frames.append(frame_rgb)
             
