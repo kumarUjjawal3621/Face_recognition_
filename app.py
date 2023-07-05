@@ -21,7 +21,7 @@ def take_frame():
     if st.button("Start Recording"):
         frames=[]
         # Open the webcam
-        cap = cv2.VideoCapture(1)
+        cap = cv2.VideoCapture(0)
         st.write("Recording started...")
         
         # Create a placeholder for the video stream
@@ -30,6 +30,7 @@ def take_frame():
         count=0
         while count<200 :
             ret, frame = cap.read()
+            print(frame)
             frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             frames.append(frame_rgb)
             
