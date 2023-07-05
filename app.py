@@ -11,6 +11,18 @@ from keras.models import Sequential
 from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense
 from keras.models import load_model
 from keras.callbacks import EarlyStopping
+from streamlit_webrtc import webrtc_streamer, VideoTransformerBase
+
+
+class FrameTransformer(VideoTransformerBase):
+    def __init__(self):
+        self.frames = []
+
+    def transform(self, frame):
+        # Convert BGR to RGB
+        frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        self.frames.append(frame_rgb)
+        return frame_rgb
 
 def take_frame():
     st.title("Training Page")
@@ -19,46 +31,50 @@ def take_frame():
     name = st.text_input("Employee Name")
 
     if st.button("Start Recording"):
-        frames=[]
-        # Open the webcam
-        cap = cv2.VideoCapture(0)
-        st.write("Recording started...")
-        
+        frames = []
+
         # Create a placeholder for the video stream
         video_placeholder = st.empty()
 
-        count=0
-        while count<200 :
-            ret, frame = cap.read()
-            st.write(frame)
-            frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            frames.append(frame_rgb)
-            
-            # Display the frame in Streamlit as a live video stream
-            video_placeholder.image(frame_rgb)
+        st.write("Recording started...")
 
-            count+=1
-        cap.release()
-        st.write("Recording finished!")
-        
-        #The first frame is saved in storage, to be shown on "database" page
-        image=Image.fromarray(frames[0])   # from numpy to PIL
-        image.save(f"single_image/{name}.jpg")
-        try:
-            #Update the list of people to be shown on database page, also used to track image label
-            with open("Listofpeople.pkl","rb") as file:
-                Listofpeople=pickle.load(file)
-            if name not in Listofpeople:
-                Listofpeople.append(name)
-            with open("Listofpeople.pkl","wb") as file:
-                pickle.dump(Listofpeople,file)
-        except:
-            Listofpeople=[name]
-            with open("Listofpeople.pkl","wb") as file:
-                pickle.dump(Listofpeople,file)
-        
-        frames=np.array(frames)
-        cap.release()
+        webrtc_ctx = webrtc_streamer(
+            key="example",
+            video_transformer_factory=FrameTransformer,
+            async_processing=True,
+            desired_playing_state=False,
+            screenshot=True,
+            frame_size=(640, 480),
+            mirror=True,
+        )
+
+        if webrtc_ctx.video_transformer:
+            frames = webrtc_ctx.video_transformer.frames
+
+        if st.button("Stop Recording"):
+            st.write("Recording finished!")
+
+            if len(frames) > 0:
+                # The first frame is saved in storage, to be shown on the "database" page
+                image = Image.fromarray(frames[0])  # Convert from numpy to PIL
+                image.save(f"single_image/{name}.jpg")
+
+                try:
+                    # Update the list of people to be shown on the "database" page,
+                    # also used to track the image label
+                    with open("Listofpeople.pkl", "rb") as file:
+                        Listofpeople = pickle.load(file)
+                    if name not in Listofpeople:
+                        Listofpeople.append(name)
+                    with open("Listofpeople.pkl", "wb") as file:
+                        pickle.dump(Listofpeople, file)
+                except:
+                    Listofpeople = [name]
+                    with open("Listofpeople.pkl", "wb") as file:
+                        pickle.dump(Listofpeople, file)
+            else:
+                st.warning("No frames recorded.")
+
         return frames
 
 def crop_and_resize(frames):
