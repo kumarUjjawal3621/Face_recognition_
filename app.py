@@ -11,10 +11,9 @@ from keras.models import Sequential
 from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense
 from keras.models import load_model
 from keras.callbacks import EarlyStopping
-from streamlit_webrtc import webrtc_streamer, VideoTransformerBase
 
-
-from imutils.video import VideoStream
+import tempfile
+import subprocess
 
 def take_frame():
     st.title("Training Page")
@@ -30,22 +29,49 @@ def take_frame():
 
         st.write("Recording started...")
 
-        # Open the webcam
-        vs = VideoStream(src=0).start()
+        # Define a temporary file to store the video frames
+        with tempfile.NamedTemporaryFile(suffix=".mkv") as temp_file:
+            # Start recording the video
+            subprocess.Popen(
+                [
+                    "ffmpeg",
+                    "-f",
+                    "v4l2",
+                    "-framerate",
+                    "30",
+                    "-video_size",
+                    "640x480",
+                    "-i",
+                    "/dev/video0",
+                    "-c",
+                    "copy",
+                    "-an",
+                    "-t",
+                    "10",
+                    temp_file.name,
+                ]
+            )
 
-        count = 0
-        while count < 200:
-            frame = vs.read()
+            # Read the video frames
+            cap = cv2.VideoCapture(temp_file.name)
 
-            # Display the frame in Streamlit as a live video stream
-            frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            video_placeholder.image(frame_rgb)
+            count = 0
+            while count < 200:
+                ret, frame = cap.read()
 
-            frames.append(frame_rgb)
-            count += 1
+                # Check if the frame is not empty
+                if not ret:
+                    break
 
-        vs.stop()
-        st.write("Recording finished!")
+                # Display the frame in Streamlit as a live video stream
+                frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                video_placeholder.image(frame_rgb)
+
+                frames.append(frame_rgb)
+                count += 1
+
+            cap.release()
+            st.write("Recording finished!")
 
         # The first frame is saved in storage, to be shown on the "database" page
         if len(frames) > 0:
