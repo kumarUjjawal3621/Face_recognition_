@@ -12,9 +12,6 @@ from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense
 from keras.models import load_model
 from keras.callbacks import EarlyStopping
 
-import tempfile
-import subprocess
-
 def take_frame():
     st.title("Training Page")
     st.write("Start your face training")
@@ -22,78 +19,40 @@ def take_frame():
     name = st.text_input("Employee Name")
 
     if st.button("Start Recording"):
-        frames = []
-
-        # Create a placeholder for the video stream
-        video_placeholder = st.empty()
-
+        frames=[]
+        cap = cv2.VideoCapture(0)
         st.write("Recording started...")
-
-        # Define a temporary file to store the video frames
-        with tempfile.NamedTemporaryFile(suffix=".mkv") as temp_file:
-            # Start recording the video
-            subprocess.Popen(
-                [
-                    "ffmpeg",
-                    "-f",
-                    "v4l2",
-                    "-framerate",
-                    "30",
-                    "-video_size",
-                    "640x480",
-                    "-i",
-                    "/dev/video0",
-                    "-c",
-                    "copy",
-                    "-an",
-                    "-t",
-                    "10",
-                    temp_file.name,
-                ]
-            )
-
-            # Read the video frames
-            cap = cv2.VideoCapture(temp_file.name)
-
-            count = 0
-            while count < 200:
-                ret, frame = cap.read()
-
-                # Check if the frame is not empty
-                if not ret:
-                    break
-
-                # Display the frame in Streamlit as a live video stream
-                frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                video_placeholder.image(frame_rgb)
-
-                frames.append(frame_rgb)
-                count += 1
-
-            cap.release()
-            st.write("Recording finished!")
-
-        # The first frame is saved in storage, to be shown on the "database" page
-        if len(frames) > 0:
-            image = Image.fromarray(frames[0])  # Convert from numpy to PIL
-            image.save(f"single_image/{name}.jpg")
-
-            try:
-                # Update the list of people to be shown on the "database" page,
-                # also used to track the image label
-                with open("Listofpeople.pkl", "rb") as file:
-                    Listofpeople = pickle.load(file)
-                if name not in Listofpeople:
-                    Listofpeople.append(name)
-                with open("Listofpeople.pkl", "wb") as file:
-                    pickle.dump(Listofpeople, file)
-            except:
-                Listofpeople = [name]
-                with open("Listofpeople.pkl", "wb") as file:
-                    pickle.dump(Listofpeople, file)
-        else:
-            st.warning("No frames recorded.")
-
+        video_placeholder = st.empty()
+        count=0
+        while count<200 :
+            ret, frame = cap.read()
+            # Convert BGR to RGB
+            frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            frames.append(frame_rgb)
+            # Display the frame in Streamlit as a live video stream
+            video_placeholder.image(frame_rgb)
+            count+=1
+        cap.release()
+        st.write("Recording finished!")
+        
+        #The first frame is saved in storage, to be shown on "database" page
+        image=Image.fromarray(frames[0])   # from numpy to PIL
+        image.save(f"single_image/{name}.jpg")
+        try:
+            #Update the list of people to be shown on database page, also used to track image label
+            with open("Listofpeople.pkl","rb") as file:
+                Listofpeople=pickle.load(file)
+            if name not in Listofpeople:
+                Listofpeople.append(name)
+            with open("Listofpeople.pkl","wb") as file:
+                pickle.dump(Listofpeople,file)
+        except:
+            Listofpeople=[name]
+            with open("Listofpeople.pkl","wb") as file:
+                pickle.dump(Listofpeople,file)
+        
+        frames=np.array(frames)
+        cap.release()
         return frames
 
 def crop_and_resize(frames):
