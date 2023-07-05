@@ -4,4 +4,3 @@ opencv_python-headless
 Pillow
 streamlit
 tensorflow
-ffmpeg
