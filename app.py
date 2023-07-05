@@ -3,6 +3,7 @@ from PIL import Image
 import io
 import os
 import base64
+import cv2
 import numpy as np
 import pickle
 from tensorflow import keras
@@ -10,10 +11,6 @@ from keras.models import Sequential
 from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense
 from keras.models import load_model
 from keras.callbacks import EarlyStopping
-import os
-os.environ['PYOPENGL_PLATFORM'] = 'egl'
-import cv2
-
 
 def take_frame():
     st.title("Training Page")
@@ -32,14 +29,15 @@ def take_frame():
 
         count=0
         while count<200 :
-            ret, frame = cap.read()
+            ret, frame_rgb = cap.read()
             # Convert BGR to RGB
-            frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            #frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             frames.append(frame_rgb)
+            
             # Display the frame in Streamlit as a live video stream
             video_placeholder.image(frame_rgb)
+
             count+=1
-            
         cap.release()
         st.write("Recording finished!")
         
@@ -232,25 +230,19 @@ st.sidebar.title("Navigation")
 page = st.sidebar.radio("Go to", ["Training", "Testing", "Database"], key="k1")
 
 if page == "Training":
-  #from tut3 import take_frame
   frames=take_frame()    #record and return the frames as numpy array eg. (400, 480, 640, 3)
   try:   # in case training button is not clicked in take_frame()
-    #from tut2 import crop_and_resize
     frames=crop_and_resize(frames)    #return the face cropped and resized to (400,128,128,3)
-    #from tut2 import update_training_data
     update_training_data(frames)      # new frames and their label added to xtrain and ytrain
-    #from tut5 import train_model
     train_model()
   except:
     pass
      
 if page=="Database":
   st.write("database is heree")
-  #from tut4 import show_image
   show_image()
   
 if page=="Testing":
   st.write("Testing is heree")
-  #from tut6 import test_page
   test_page()
   
