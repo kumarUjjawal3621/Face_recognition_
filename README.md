@@ -1,5 +1,5 @@
 # Face_recognition_
-Face recognition web app with streamlit. People can upload their face's video from which CNN model learns. The app can predict then predict their face.
+Face recognition web app with streamlit. People can upload their face's video from which CNN model learns. The app can then predict their face.
 
 If you want to run this app by yours, you need to have an empty folder named 'single_image' in same directory as of 'app.py'
   
