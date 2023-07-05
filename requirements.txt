@@ -4,5 +4,5 @@ opencv_python-headless
 Pillow
 streamlit
 tensorflow
-streamlit-webrtc
-imutils
+tempfile
+subprocess
