@@ -4,13 +4,14 @@ import io
 import os
 import base64
 import numpy as np
-import cv2
 import pickle
 from tensorflow import keras
 from keras.models import Sequential
 from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense
 from keras.models import load_model
 from keras.callbacks import EarlyStopping
+import cv2
+
 
 def take_frame():
     st.title("Training Page")
