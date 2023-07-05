@@ -32,16 +32,14 @@ def take_frame():
 
         count=0
         while count<200 :
-            try:
-                ret, frame = cap.read()
-                # Convert BGR to RGB
-                frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                frames.append(frame_rgb)
-                # Display the frame in Streamlit as a live video stream
-                video_placeholder.image(frame_rgb)
-                count+=1
-            except:
-                pass
+            ret, frame = cap.read()
+            # Convert BGR to RGB
+            frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            frames.append(frame_rgb)
+            # Display the frame in Streamlit as a live video stream
+            video_placeholder.image(frame_rgb)
+            count+=1
+            
         cap.release()
         st.write("Recording finished!")
         
