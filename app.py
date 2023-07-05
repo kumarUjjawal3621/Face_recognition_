@@ -3,8 +3,8 @@ from PIL import Image
 import io
 import os
 import base64
-import cv2
 import numpy as np
+import cv2
 import pickle
 from tensorflow import keras
 from keras.models import Sequential
