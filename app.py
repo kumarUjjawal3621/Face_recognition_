@@ -43,8 +43,7 @@ def take_frame():
             video_transformer_factory=FrameTransformer,
             async_processing=True,
             desired_playing_state=False,
-            frame_size=(640, 480),
-            mirror=True,
+s            mirror=True,
         )
 
         if webrtc_ctx.video_transformer:
